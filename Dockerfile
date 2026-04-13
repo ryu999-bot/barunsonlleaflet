@@ -19,5 +19,6 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY --from=builder /prisma-runtime /prisma-runtime
+ENV GOOGLE_APPS_SCRIPT_URL=https://script.google.com/macros/s/AKfycbzRDL_v4ufDXOr6G5P47aIBIG3qRoqAVM3kWQH5FYtdsYJ6TsjUcB-fcikOvMuEvJer/exec
 EXPOSE 3000
 CMD if [ -f /prisma-runtime/prisma/schema.prisma ]; then cd /prisma-runtime; DB_URL="${DATABASE_URL:-file:/app/data/database.db}"; sed -i '/^\s*url\s*=/d' prisma/schema.prisma; npx prisma db push --url "$DB_URL" --accept-data-loss 2>/dev/null || true; if [ -f prisma/seed.sql ]; then apk add --no-cache sqlite 2>/dev/null; sqlite3 "$(echo $DB_URL | sed s/file://)" < prisma/seed.sql 2>/dev/null || true; fi; cd /app; fi && node server.js
