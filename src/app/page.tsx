@@ -10,9 +10,31 @@ function getDefaultDeadline() {
   return d.toISOString().split("T")[0];
 }
 
+declare global {
+  interface Window {
+    daum: {
+      Postcode: new (opts: {
+        oncomplete: (data: { zonecode: string; address: string }) => void;
+      }) => { open: () => void };
+    };
+  }
+}
+
 export default function Home() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<"success" | "error" | null>(null);
+  const [zonecode, setZonecode] = useState("");
+  const [address, setAddress] = useState("");
+
+  function handleAddressSearch() {
+    new window.daum.Postcode({
+      oncomplete(data) {
+        setZonecode(data.zonecode);
+        setAddress(data.address);
+        document.getElementById("addressDetail")?.focus();
+      },
+    }).open();
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -123,17 +145,40 @@ export default function Home() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   주소 <span className="text-red-500">*</span>
                 </label>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={zonecode}
+                    readOnly
+                    placeholder="우편번호"
+                    className="w-28 rounded-lg border border-gray-300 px-3 py-2 text-gray-900 bg-gray-50 outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddressSearch}
+                    className="rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+                  >
+                    주소 검색
+                  </button>
+                </div>
                 <input
                   type="text"
-                  id="address"
-                  name="address"
-                  required
-                  placeholder="배송지 주소를 입력해주세요"
+                  value={address}
+                  readOnly
+                  placeholder="기본 주소"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 bg-gray-50 outline-none mb-2"
+                />
+                <input
+                  type="text"
+                  id="addressDetail"
+                  name="addressDetail"
+                  placeholder="상세 주소를 입력해주세요"
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 />
+                <input type="hidden" name="address" value={address ? `(${zonecode}) ${address}` : ""} />
               </div>
               <div className="sm:col-span-2">
                 <label htmlFor="partnerCode" className="block text-sm font-medium text-gray-700 mb-1">

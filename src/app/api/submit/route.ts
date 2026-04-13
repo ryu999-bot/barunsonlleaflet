@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       contactName: formData.get("contactName") as string,
       phone: formData.get("phone") as string,
       email: formData.get("email") as string,
-      address: formData.get("address") as string,
+      address: [formData.get("address"), formData.get("addressDetail")].filter(Boolean).join(" "),
       partnerCode: formData.get("partnerCode") as string,
       purpose: formData.get("purpose") as string,
       quantity: formData.get("quantity") as string,
