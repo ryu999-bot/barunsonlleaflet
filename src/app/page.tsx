@@ -2,6 +2,8 @@
 
 import { useState, FormEvent } from "react";
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 const QUANTITIES = Array.from({ length: 50 }, (_, i) => (i + 1) * 50);
 
 function getDefaultDeadline() {
@@ -45,7 +47,7 @@ export default function Home() {
     const formData = new FormData(form);
 
     try {
-      const res = await fetch("/api/submit", { method: "POST", body: formData });
+      const res = await fetch(`${BASE_PATH}/api/submit`, { method: "POST", body: formData });
       if (res.ok) {
         setResult("success");
         form.reset();
