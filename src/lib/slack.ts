@@ -1,7 +1,5 @@
 import { IncomingWebhook } from "@slack/webhook";
 
-const webhook = new IncomingWebhook(process.env.SLACK_WEBHOOK_URL!);
-
 interface LeafletRequest {
   companyName: string;
   contactName: string;
@@ -16,6 +14,11 @@ interface LeafletRequest {
 }
 
 export async function sendSlackNotification(data: LeafletRequest) {
+  const webhookUrl = process.env.SLACK_WEBHOOK_URL;
+  if (!webhookUrl) return;
+
+  const webhook = new IncomingWebhook(webhookUrl);
+
   await webhook.send({
     text: `:memo: *새로운 리플렛 제작 신청*`,
     blocks: [
