@@ -13,20 +13,35 @@ interface LeafletRow {
 
 export async function appendToSheet(data: LeafletRow) {
   const payload = JSON.stringify(data);
+  const headers = {
+    "Content-Type": "application/json",
+    "Content-Length": Buffer.byteLength(payload).toString(),
+  };
 
-  // Apps Script는 POST → 302 리다이렉트 → GET 으로 동작함
-  // redirect: "follow"로 자동 처리
+  // 1단계: Apps Script로 POST → 302 리다이렉트 받기
   const res = await fetch(process.env.GOOGLE_APPS_SCRIPT_URL!, {
     method: "POST",
+    headers,
     body: payload,
-    redirect: "follow",
+    redirect: "manual",
   });
 
-  // Apps Script는 리다이렉트 후 HTML 또는 JSON을 반환
-  // 성공 시 response body에 {"success":true} 포함
-  const text = await res.text().catch(() => "");
+  if (res.status !== 302) {
+    throw new Error(`Google Sheets 1단계 실패: ${res.status}`);
+  }
 
-  // 에러 페이지가 반환된 경우 체크
+  const redirectUrl = res.headers.get("location");
+  if (!redirectUrl) {
+    throw new Error("Google Sheets 리다이렉트 URL 없음");
+  }
+
+  // 2단계: 리다이렉트 URL로 GET 요청 (body 없이)
+  const res2 = await fetch(redirectUrl, {
+    method: "GET",
+  });
+
+  const text = await res2.text().catch(() => "");
+
   if (text.includes("TypeError") || text.includes("Error")) {
     throw new Error(`Google Sheets 저장 실패: ${text.substring(0, 200)}`);
   }
