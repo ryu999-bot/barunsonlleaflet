@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     };
 
     // 필수 필드 검증
-    const required = ["companyName", "contactName", "phone", "email", "address", "purpose", "phoneCallRequest"] as const;
+    const required = ["companyName", "contactName", "phone", "email", "address", "partnerCode", "purpose", "phoneCallRequest"] as const;
     for (const field of required) {
       if (!data[field]?.trim()) {
         return NextResponse.json(
