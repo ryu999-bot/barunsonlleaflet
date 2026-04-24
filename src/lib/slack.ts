@@ -10,6 +10,8 @@ interface LeafletRequest {
   purpose: string;
   quantity: string;
   deadline: string;
+  notes: string;
+  phoneCallRequest: string;
   fileName?: string;
 }
 
@@ -38,7 +40,12 @@ export async function sendSlackNotification(data: LeafletRequest) {
           { type: "mrkdwn", text: `*용도:*\n${data.purpose}` },
           { type: "mrkdwn", text: `*수량:*\n${data.quantity}` },
           { type: "mrkdwn", text: `*납기일:*\n${data.deadline}` },
+          { type: "mrkdwn", text: `*유선 연락 요청:*\n${data.phoneCallRequest}` },
         ],
+      },
+      {
+        type: "section",
+        text: { type: "mrkdwn", text: `*특이사항:*\n${data.notes || "-"}` },
       },
       ...(data.fileName
         ? [

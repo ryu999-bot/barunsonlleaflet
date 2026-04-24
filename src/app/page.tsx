@@ -281,6 +281,53 @@ export default function Home() {
             </div>
           </fieldset>
 
+          {/* 추가 요청사항 */}
+          <fieldset>
+            <legend className="text-lg font-semibold text-gray-900 mb-4">
+              추가 요청사항
+            </legend>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+                  특이사항
+                </label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  rows={4}
+                  placeholder="요청사항이나 특이사항을 자유롭게 적어주세요."
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-y"
+                />
+              </div>
+              <div>
+                <span className="block text-sm font-medium text-gray-700 mb-2">
+                  유선 연락 요청 유무 <span className="text-red-500">*</span>
+                </span>
+                <div className="flex gap-6">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="phoneCallRequest"
+                      value="요청"
+                      required
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    />
+                    <span className="text-gray-900">요청</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="phoneCallRequest"
+                      value="불필요"
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    />
+                    <span className="text-gray-900">불필요</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
           {/* Submit */}
           <button
             type="submit"

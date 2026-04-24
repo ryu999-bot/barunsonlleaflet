@@ -16,10 +16,12 @@ export async function POST(request: Request) {
       purpose: formData.get("purpose") as string,
       quantity: formData.get("quantity") as string,
       deadline: formData.get("deadline") as string,
+      notes: (formData.get("notes") as string) || "",
+      phoneCallRequest: formData.get("phoneCallRequest") as string,
     };
 
     // 필수 필드 검증
-    const required = ["companyName", "contactName", "phone", "email", "address", "purpose"] as const;
+    const required = ["companyName", "contactName", "phone", "email", "address", "purpose", "phoneCallRequest"] as const;
     for (const field of required) {
       if (!data[field]?.trim()) {
         return NextResponse.json(

@@ -8,6 +8,8 @@ interface LeafletRow {
   purpose: string;
   quantity: string;
   deadline: string;
+  notes: string;
+  phoneCallRequest: string;
   fileName?: string;
 }
 
