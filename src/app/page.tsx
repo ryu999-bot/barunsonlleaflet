@@ -4,7 +4,7 @@ import { useState, FormEvent } from "react";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
-const QUANTITIES = Array.from({ length: 50 }, (_, i) => (i + 1) * 50);
+const QUANTITIES = Array.from({ length: 10 }, (_, i) => (i + 1) * 50);
 
 function getDefaultDeadline() {
   const d = new Date();
@@ -213,17 +213,8 @@ export default function Home() {
                     <input
                       type="radio"
                       name="purpose"
-                      value="샘플팩"
-                      required
-                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                    />
-                    <span className="text-gray-900">샘플팩</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="purpose"
                       value="리플렛"
+                      required
                       className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                     />
                     <span className="text-gray-900">리플렛</span>
