@@ -11,6 +11,8 @@ interface LeafletRow {
   notes: string;
   phoneCallRequest: string;
   fileName?: string;
+  fileData?: string;
+  fileMimeType?: string;
 }
 
 export async function appendToSheet(data: LeafletRow) {

@@ -32,10 +32,18 @@ export async function POST(request: Request) {
     }
 
     const file = formData.get("file") as File | null;
-    const fileName = file?.name || undefined;
+    let fileName: string | undefined;
+    let fileData: string | undefined;
+    let fileMimeType: string | undefined;
+    if (file && file.size > 0) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      fileName = file.name;
+      fileMimeType = file.type || "application/octet-stream";
+      fileData = buffer.toString("base64");
+    }
 
     // Google Sheets 저장
-    await appendToSheet({ ...data, fileName });
+    await appendToSheet({ ...data, fileName, fileData, fileMimeType });
 
     // Slack 알림 (웹훅 URL이 설정된 경우에만)
     if (process.env.SLACK_WEBHOOK_URL && !process.env.SLACK_WEBHOOK_URL.includes("YOUR")) {

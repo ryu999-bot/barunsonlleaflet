@@ -14,6 +14,17 @@ function doPost(e) {
 
   var now = Utilities.formatDate(new Date(), "Asia/Seoul", "yyyy-MM-dd HH:mm:ss");
 
+  var fileCell = "";
+  if (data.fileData && data.fileName) {
+    var bytes = Utilities.base64Decode(data.fileData);
+    var blob = Utilities.newBlob(bytes, data.fileMimeType || "application/octet-stream", data.fileName);
+    var driveFile = DriveApp.createFile(blob);
+    var safeName = String(data.fileName).replace(/"/g, '""');
+    fileCell = '=HYPERLINK("' + driveFile.getUrl() + '","' + safeName + '")';
+  } else if (data.fileName) {
+    fileCell = data.fileName;
+  }
+
   var rowData = [
     now,
     data.companyName,
@@ -25,7 +36,7 @@ function doPost(e) {
     data.purpose,
     data.quantity,
     data.deadline,
-    data.fileName || "",
+    fileCell,
     data.phoneCallRequest || "",
     data.notes || "",
     "accept",
