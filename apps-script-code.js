@@ -19,6 +19,7 @@ function doPost(e) {
     var bytes = Utilities.base64Decode(data.fileData);
     var blob = Utilities.newBlob(bytes, data.fileMimeType || "application/octet-stream", data.fileName);
     var driveFile = DriveApp.createFile(blob);
+    driveFile.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.VIEW);
     var safeName = String(data.fileName).replace(/"/g, '""');
     fileCell = '=HYPERLINK("' + driveFile.getUrl() + '","' + safeName + '")';
   } else if (data.fileName) {
