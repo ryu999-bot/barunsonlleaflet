@@ -46,8 +46,11 @@ export async function POST(request: Request) {
     await appendToSheet({ ...data, fileName, fileData, fileMimeType });
 
     // Slack 알림 (웹훅 URL이 설정된 경우에만)
-    if (process.env.SLACK_WEBHOOK_URL && !process.env.SLACK_WEBHOOK_URL.includes("YOUR")) {
+    // 시트 저장은 이미 끝났으므로 알림 실패로 신청 자체를 실패 처리하지 않음 (중복 재신청 방지)
+    try {
       await sendSlackNotification({ ...data, fileName });
+    } catch (error) {
+      console.error("Slack notification error:", error instanceof Error ? error.message : error);
     }
 
     return NextResponse.json({ success: true });
