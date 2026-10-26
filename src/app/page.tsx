@@ -62,34 +62,34 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-full bg-gray-50 py-12 px-4">
+    <div className="min-h-full bg-gray-50 py-8 px-4 sm:py-12">
       <div className="mx-auto max-w-2xl">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
             바른손 리플렛 제작 신청
           </h1>
           <p className="mt-2 text-gray-600">
-            아래 양식을 작성하여 리플렛 제작을 신청해 주세요.
+            아래 양식을 작성하여<br className="sm:hidden" /> 리플렛 제작을 신청해 주세요.
           </p>
         </div>
 
         {/* Result Messages */}
         {result === "success" && (
           <div className="mb-6 rounded-lg bg-green-50 border border-green-200 p-4 text-green-800">
-            신청이 완료되었습니다. 담당자가 확인 후 연락드리겠습니다.
+            신청이 완료되었습니다.<br className="sm:hidden" /> 담당자가 확인 후 연락드리겠습니다.
           </div>
         )}
         {result === "error" && (
           <div className="mb-6 rounded-lg bg-red-50 border border-red-200 p-4 text-red-800">
-            신청 중 오류가 발생했습니다. 다시 시도해 주세요.
+            신청 중 오류가 발생했습니다.<br className="sm:hidden" /> 다시 시도해 주세요.
           </div>
         )}
 
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 rounded-xl bg-white p-8 shadow-sm border border-gray-200"
+          className="space-y-6 rounded-xl bg-white p-5 shadow-sm border border-gray-200 sm:p-8"
         >
           {/* 기본 정보 */}
           <fieldset>
@@ -249,6 +249,9 @@ export default function Home() {
                     defaultValue={getDefaultDeadline()}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                   />
+                  <p className="mt-2 rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-800">
+                    리플렛은 신청일로부터<br /> 영업일 기준 10일 내외로 발송됩니다.
+                  </p>
                 </div>
               </div>
             </div>
@@ -331,7 +334,11 @@ export default function Home() {
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-500">
-          문의사항은 담당자에게 연락해 주세요.
+          문의사항은 아래 담당자 메일로 연락해 주세요.
+          <br />
+          <a href="mailto:wooram.jeon@barunn.net" className="text-blue-600 underline hover:text-blue-700">
+            wooram.jeon@barunn.net
+          </a>
         </p>
       </div>
     </div>
