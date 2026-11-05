@@ -63,7 +63,7 @@ export async function sendSlackNotification(raw: LeafletRequest): Promise<SlackT
           { type: "mrkdwn", text: `*제휴사 코드:*\n${data.partnerCode || "-"}` },
           { type: "mrkdwn", text: `*용도:*\n${data.purpose}` },
           { type: "mrkdwn", text: `*수량:*\n${data.quantity}` },
-          { type: "mrkdwn", text: `*납기일:*\n${data.deadline}` },
+          { type: "mrkdwn", text: `*납기 희망일:*\n${data.deadline}` },
           { type: "mrkdwn", text: `*유선 연락 요청:*\n${data.phoneCallRequest}` },
         ],
       },

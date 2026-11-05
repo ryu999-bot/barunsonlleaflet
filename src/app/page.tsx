@@ -1,15 +1,47 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 const QUANTITIES = Array.from({ length: 10 }, (_, i) => (i + 1) * 50);
 
+// 리플렛 제작 소요 기간 (영업일)
+const PRODUCTION_BUSINESS_DAYS = 10;
+
+// 로컬(한국) 날짜 기준 yyyy-MM-dd (toISOString은 UTC라 오전 9시 전엔 하루 밀림)
+function toDateString(d: Date) {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function isWeekend(d: Date) {
+  return d.getDay() === 0 || d.getDay() === 6;
+}
+
+// 오늘 다음 날부터 target 당일까지의 영업일(주말 제외) 수
+function businessDaysUntil(target: string) {
+  const end = new Date(`${target}T00:00:00`);
+  if (isNaN(end.getTime())) return null;
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  let count = 0;
+  while (d < end) {
+    d.setDate(d.getDate() + 1);
+    if (!isWeekend(d)) count++;
+  }
+  return count;
+}
+
+// 기본값: 제작 기간(영업일 10일)을 넘긴 첫 영업일 → 안내 경고가 뜨지 않는 가장 빠른 날짜
 function getDefaultDeadline() {
   const d = new Date();
-  d.setDate(d.getDate() + 5);
-  return d.toISOString().split("T")[0];
+  let added = 0;
+  while (added <= PRODUCTION_BUSINESS_DAYS) {
+    d.setDate(d.getDate() + 1);
+    if (!isWeekend(d)) added++;
+  }
+  return toDateString(d);
 }
 
 declare global {
@@ -27,6 +59,17 @@ export default function Home() {
   const [result, setResult] = useState<"success" | "error" | null>(null);
   const [zonecode, setZonecode] = useState("");
   const [address, setAddress] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [today, setToday] = useState("");
+
+  // 페이지는 빌드 시 미리 렌더링되므로 날짜 기본값은 브라우저에서 계산
+  useEffect(() => {
+    setToday(toDateString(new Date()));
+    setDeadline(getDefaultDeadline());
+  }, []);
+
+  const daysUntilDeadline = deadline ? businessDaysUntil(deadline) : null;
+  const isTightDeadline = daysUntilDeadline !== null && daysUntilDeadline <= PRODUCTION_BUSINESS_DAYS;
 
   function handleAddressSearch() {
     new window.daum.Postcode({
@@ -51,6 +94,7 @@ export default function Home() {
       if (res.ok) {
         setResult("success");
         form.reset();
+        setDeadline(getDefaultDeadline());
       } else {
         setResult("error");
       }
@@ -240,18 +284,29 @@ export default function Home() {
                 </div>
                 <div>
                   <label htmlFor="deadline" className="block text-sm font-medium text-gray-700 mb-1">
-                    납기일
+                    납기 희망일
                   </label>
                   <input
                     type="date"
                     id="deadline"
                     name="deadline"
-                    defaultValue={getDefaultDeadline()}
+                    value={deadline}
+                    min={today || undefined}
+                    onChange={(e) => setDeadline(e.target.value)}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                   />
-                  <p className="mt-2 rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-800">
-                    리플렛은 신청일로부터<br /> 영업일 기준 10일 내외로 발송됩니다.
-                  </p>
+                  {isTightDeadline ? (
+                    <p role="alert" className="mt-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-sm font-medium text-amber-800">
+                      <span className="block">선택하신 날짜는 영업일 기준 {daysUntilDeadline}일 후입니다.</span>
+                      <span className="mt-1 block break-keep font-normal">
+                        리플렛 제작에는 영업일 기준 약 10일이 소요되어 가급적 여유있는 일정으로 신청 부탁드립니다.
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="mt-2 rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-800">
+                      리플렛은 신청일로부터<br /> 영업일 기준 10일 내외로 발송됩니다.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
