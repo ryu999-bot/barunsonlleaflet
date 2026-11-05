@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { sendSlackNotification } from "@/lib/slack";
-import { appendToSheet } from "@/lib/sheets";
+import { appendToSheet, saveSlackThread } from "@/lib/sheets";
 
 export async function POST(request: Request) {
   try {
@@ -43,12 +43,14 @@ export async function POST(request: Request) {
     }
 
     // Google Sheets 저장
-    await appendToSheet({ ...data, fileName, fileData, fileMimeType });
+    const row = await appendToSheet({ ...data, fileName, fileData, fileMimeType });
 
-    // Slack 알림 (웹훅 URL이 설정된 경우에만)
+    // Slack 알림 (봇 토큰 또는 웹훅 URL이 설정된 경우에만)
     // 시트 저장은 이미 끝났으므로 알림 실패로 신청 자체를 실패 처리하지 않음 (중복 재신청 방지)
     try {
-      await sendSlackNotification({ ...data, fileName });
+      const thread = await sendSlackNotification({ ...data, fileName });
+      // 지연 리마인드가 이 메시지의 스레드 댓글로 달리도록 시트에 ts 기록
+      if (thread && row) await saveSlackThread(row, thread.ts, data.companyName);
     } catch (error) {
       console.error("Slack notification error:", error instanceof Error ? error.message : error);
     }

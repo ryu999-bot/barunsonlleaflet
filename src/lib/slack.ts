@@ -1,4 +1,4 @@
-import { IncomingWebhook } from "@slack/webhook";
+import { IncomingWebhook, type IncomingWebhookSendArguments } from "@slack/webhook";
 
 interface LeafletRequest {
   companyName: string;
@@ -23,17 +23,25 @@ function esc(value: string) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-export async function sendSlackNotification(raw: LeafletRequest) {
+export interface SlackThread {
+  channel: string;
+  ts: string;
+}
+
+// 봇 토큰이 있으면 chat.postMessage로 보내고 스레드 ts를 반환 (지연 리마인드를 스레드 댓글로 달기 위함)
+// 없으면 기존 웹훅으로 전송 (ts 없음 → Apps Script가 채널 기록에서 원본 메시지를 찾음)
+export async function sendSlackNotification(raw: LeafletRequest): Promise<SlackThread | null> {
+  const botToken = process.env.SLACK_BOT_TOKEN;
+  const channel = process.env.SLACK_CHANNEL_ID;
   const webhookUrl = process.env.SLACK_WEBHOOK_URL;
-  if (!webhookUrl || webhookUrl.includes("YOUR")) return;
+  const useBot = !!botToken && !!channel;
+  if (!useBot && (!webhookUrl || webhookUrl.includes("YOUR"))) return null;
 
   const data = Object.fromEntries(
     Object.entries(raw).map(([k, v]) => [k, typeof v === "string" ? esc(v) : v])
   ) as LeafletRequest;
 
-  const webhook = new IncomingWebhook(webhookUrl);
-
-  await webhook.send({
+  const message: IncomingWebhookSendArguments = {
     text: `:memo: *새로운 리플렛 제작 신청* ${MENTIONS}`,
     blocks: [
       {
@@ -78,5 +86,22 @@ export async function sendSlackNotification(raw: LeafletRequest) {
         : []),
       { type: "divider" },
     ],
-  });
+  };
+
+  if (useBot) {
+    const res = await fetch("https://slack.com/api/chat.postMessage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        Authorization: `Bearer ${botToken}`,
+      },
+      body: JSON.stringify({ channel, ...message }),
+    });
+    const out = (await res.json()) as { ok: boolean; error?: string; channel?: string; ts?: string };
+    if (!out.ok || !out.ts) throw new Error(`Slack chat.postMessage 실패: ${out.error}`);
+    return { channel: out.channel ?? channel, ts: out.ts };
+  }
+
+  await new IncomingWebhook(webhookUrl!).send(message);
+  return null;
 }
