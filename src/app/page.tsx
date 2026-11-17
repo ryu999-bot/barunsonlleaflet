@@ -7,7 +7,7 @@ const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const QUANTITIES = Array.from({ length: 10 }, (_, i) => (i + 1) * 50);
 
 // 리플렛 제작 소요 기간 (영업일)
-const PRODUCTION_BUSINESS_DAYS = 10;
+const PRODUCTION_BUSINESS_DAYS = 5;
 
 // 로컬(한국) 날짜 기준 yyyy-MM-dd (toISOString은 UTC라 오전 9시 전엔 하루 밀림)
 function toDateString(d: Date) {
@@ -33,7 +33,7 @@ function businessDaysUntil(target: string) {
   return count;
 }
 
-// 기본값: 제작 기간(영업일 10일)을 넘긴 첫 영업일 → 안내 경고가 뜨지 않는 가장 빠른 날짜
+// 기본값: 제작 기간(영업일 PRODUCTION_BUSINESS_DAYS일)을 넘긴 첫 영업일 → 안내 경고가 뜨지 않는 가장 빠른 날짜
 function getDefaultDeadline() {
   const d = new Date();
   let added = 0;
@@ -299,12 +299,12 @@ export default function Home() {
                     <p role="alert" className="mt-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-sm font-medium text-amber-800">
                       <span className="block">선택하신 날짜는 영업일 기준 {daysUntilDeadline}일 후입니다.</span>
                       <span className="mt-1 block break-keep font-normal">
-                        리플렛 제작에는 영업일 기준 약 10일이 소요되어 가급적 여유있는 일정으로 신청 부탁드립니다.
+                        리플렛 제작에는 영업일 기준 약 {PRODUCTION_BUSINESS_DAYS}일이 소요되어 가급적 여유있는 일정으로 신청 부탁드립니다.
                       </span>
                     </p>
                   ) : (
                     <p className="mt-2 rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-800">
-                      리플렛은 신청일로부터<br /> 영업일 기준 10일 내외로 발송됩니다.
+                      리플렛은 신청일로부터<br /> 영업일 기준 {PRODUCTION_BUSINESS_DAYS}일 내외로 발송됩니다.
                     </p>
                   )}
                 </div>
